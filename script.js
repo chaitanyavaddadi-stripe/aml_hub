@@ -3,13 +3,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const nameToFilename = (name) => name.toLowerCase().replace(/ /g, '-').replace(/\./g, '') + '.jpg';
     const nameToInitials = (name) => name.split(' ').map(n => n[0]).join('').substring(0, 2);
 
-    // --- ORG CHART LOGIC ---
+    // --- NEW RADIAL ORG CHART ---
     function renderOrgChart() {
         const teamData = {
-            name: 'Megha Chhaparia',
-            title: 'AML LOB Lead',
-            image: 'meghachhaparia.jpg',
-            color: '#8b5cf6', // Purple for the lead
+            name: 'Megha Chhaparia', title: 'AML LOB Lead', image: 'meghachhaparia.jpg', color: '#8b5cf6',
             children: [
                 { name: 'Aparna Jayant', title: 'AML EMEA DRI', image: 'ajayant.jpg', color: '#ef4444', reports: ['Agnel Levin', 'Aman Husain', 'Nanda Krishnan U Nair', 'Padma Lochan Choudhury', 'Princy Ann', 'Suman S', 'Vasudevan Sundararaj', 'Yusuf Khan'] },
                 { name: 'Divya Nayak', title: 'AML EMEA DRI', image: 'divyanayak.jpg', color: '#3b82f6', reports: ['Ashwini H', 'Bindya Cheruvalanda Lava', 'Geetanjali Gudiseva', 'Lokesh Raaju Polamarasetty', 'Monica Manisha Monteiro', 'Shalini T', 'Surbhi Kumari', 'Swaroop S Kaushik', 'Vaishnavi V', 'Vidya t'] },
@@ -18,116 +15,126 @@ document.addEventListener('DOMContentLoaded', function() {
             ]
         };
 
+        const hierarchy = {};
+        function buildHierarchy(node, parent = null) {
+            const children = node.children || (node.reports ? node.reports.map(name => ({name, title: 'Analyst', color: node.color})) : []);
+            hierarchy[node.name] = { ...node, parent, children };
+            children.forEach(child => buildHierarchy(child, node.name));
+        }
+        buildHierarchy(teamData);
+
         const container = document.getElementById('org-chart-container');
         if (!container) return;
 
-        container.innerHTML = `<div class="org-tree"></div><svg id="org-chart-svg"></svg>`;
-        const treeContainer = container.querySelector('.org-tree');
+        container.innerHTML = `
+            <div id="org-nodes-wrapper"></div>
+            <svg id="org-chart-svg"></svg>
+            <button id="org-back-button"><i class="fas fa-arrow-left mr-2"></i> Go Back</button>
+        `;
+        const nodesWrapper = container.querySelector('#org-nodes-wrapper');
+        const svg = container.querySelector('#org-chart-svg');
+        const backButton = container.querySelector('#org-back-button');
 
-        function createNode(person, isRoot = false) {
-            const li = document.createElement('li');
-            const nodeDiv = document.createElement('div');
-            nodeDiv.className = 'org-node';
-            nodeDiv.id = `node-${person.name.replace(/ /g, '-')}`;
+        function renderRadialChart(focusNodeName) {
+            const focusNode = hierarchy[focusNodeName];
+            nodesWrapper.innerHTML = ''; // Clear existing nodes
+
+            const centerX = container.offsetWidth / 2;
+            const centerY = container.offsetHeight / 2;
+
+            // Render Center Node
+            const centerNodeEl = createNode(focusNode, 'center');
+            centerNodeEl.style.left = `${centerX}px`;
+            centerNodeEl.style.top = `${centerY}px`;
+            nodesWrapper.appendChild(centerNodeEl);
+
+            // Render Orbiting Children Nodes
+            const children = focusNode.children;
+            const angleStep = children.length > 0 ? 360 / children.length : 0;
+            const radius = Math.min(centerX, centerY) * 0.7;
+
+            children.forEach((child, index) => {
+                const angle = angleStep * index - 90; // -90 to start from the top
+                const angleRad = angle * (Math.PI / 180);
+
+                const childX = centerX + radius * Math.cos(angleRad);
+                const childY = centerY + radius * Math.sin(angleRad);
+
+                const childNodeEl = createNode(child, 'orbit');
+                childNodeEl.style.left = `${childX}px`;
+                childNodeEl.style.top = `${childY}px`;
+                nodesWrapper.appendChild(childNodeEl);
+            });
+            
+            // Draw lines and handle back button after a short delay for CSS transitions
+            setTimeout(() => {
+                drawLines(focusNode, centerX, centerY, radius);
+                
+                if (focusNode.parent) {
+                    backButton.classList.add('visible');
+                    backButton.onclick = () => renderRadialChart(focusNode.parent);
+                } else {
+                    backButton.classList.remove('visible');
+                }
+            }, 50);
+        }
+        
+        function createNode(person, type) {
+            const nodeEl = document.createElement('div');
+            nodeEl.className = `radial-org-node ${type}`;
+            nodeEl.dataset.name = person.name;
             
             const color = person.color || '#6b7280';
             const placeholderColor = color.substring(1);
-            nodeDiv.style.borderColor = color;
-            
-            const titleDiv = `<div class="title" style="color: ${color};">${person.title}</div>`;
+            nodeEl.style.borderColor = color;
 
-            nodeDiv.innerHTML = `
-                <img src="images/${person.image || nameToFilename(person.name)}" onerror="this.onerror=null;this.src='https://placehold.co/120x120/${placeholderColor}/ffffff?text=${nameToInitials(person.name)}';">
+            nodeEl.innerHTML = `
+                <img src="images/${person.image || nameToFilename(person.name)}" onerror="this.onerror=null;this.src='https://placehold.co/100x100/${placeholderColor}/ffffff?text=${nameToInitials(person.name)}';">
                 <div class="name">${person.name}</div>
-                ${titleDiv}
+                <div class="title" style="color: ${color};">${person.title}</div>
             `;
             
-            li.appendChild(nodeDiv);
-
-            const children = person.children || (person.reports ? person.reports.map(name => ({name, title: 'Analyst'})) : []);
-
-            if (children.length > 0) {
-                nodeDiv.classList.add('has-children');
-                const subList = document.createElement('ul');
-                children.sort((a, b) => a.name.localeCompare(b.name)).forEach(child => {
-                    if (person.color && !child.color) child.color = person.color;
-                    subList.appendChild(createNode(child));
-                });
-                li.appendChild(subList);
-
-                nodeDiv.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    li.classList.toggle('expanded');
-                    nodeDiv.classList.toggle('expanded');
-                    setTimeout(drawConnections, 50); 
-                });
-            }
-            
-            if (isRoot) {
-                li.classList.add('expanded');
-                nodeDiv.classList.add('expanded');
+            if (hierarchy[person.name].children.length > 0) {
+                nodeEl.style.cursor = 'pointer';
+                nodeEl.addEventListener('click', () => renderRadialChart(person.name));
+            } else {
+                nodeEl.style.cursor = 'default';
             }
 
-            return li;
+            return nodeEl;
         }
 
-        const rootList = document.createElement('ul');
-        rootList.appendChild(createNode(teamData, true));
-        treeContainer.appendChild(rootList);
-
-        setTimeout(drawConnections, 100);
-        window.addEventListener('resize', () => {
-            if (window.resizeTimeout) clearTimeout(window.resizeTimeout);
-            window.resizeTimeout = setTimeout(drawConnections, 100);
-        });
-    }
-
-    function drawConnections() {
-        const svg = document.getElementById('org-chart-svg');
-        const container = document.getElementById('org-chart-container');
-        if (!svg || !container) return;
-
-        svg.innerHTML = '';
-        const containerRect = container.getBoundingClientRect();
-
-        document.querySelectorAll('.org-tree li.expanded').forEach(parentNode => {
-            const parentDiv = parentNode.querySelector(':scope > .org-node');
-            const childrenUl = parentNode.querySelector(':scope > ul');
-            if (!childrenUl) return;
-
-            const parentRect = parentDiv.getBoundingClientRect();
-            const parentColor = parentDiv.style.borderColor || '#6b7280';
+        function drawLines(focusNode, centerX, centerY, radius) {
+            svg.innerHTML = '';
+            const children = focusNode.children;
+            const angleStep = children.length > 0 ? 360 / children.length : 0;
             
-            const startX = parentRect.left - containerRect.left + parentRect.width / 2;
-            const startY = parentRect.top - containerRect.top + parentRect.height;
+            children.forEach((child, index) => {
+                const angle = angleStep * index - 90;
+                const angleRad = angle * (Math.PI / 180);
+                const childX = centerX + radius * Math.cos(angleRad);
+                const childY = centerY + radius * Math.sin(angleRad);
 
-            Array.from(childrenUl.children).forEach(childLi => {
-                const childDiv = childLi.querySelector(':scope > .org-node');
-                const childRect = childDiv.getBoundingClientRect();
-
-                const endX = childRect.left - containerRect.left + childRect.width / 2;
-                const endY = childRect.top - containerRect.top;
-
-                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                const controlY1 = startY + (endY - startY) * 0.5;
-                const controlY2 = endY - (endY - startY) * 0.5;
-                const d = `M ${startX} ${startY} C ${startX} ${controlY1}, ${endX} ${controlY2}, ${endX} ${endY}`;
-                
-                path.setAttribute('d', d);
-                path.setAttribute('stroke', parentColor);
-                path.setAttribute('stroke-width', '2.5');
-                path.setAttribute('fill', 'none');
-                svg.appendChild(path);
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                line.setAttribute('d', `M ${centerX} ${centerY} L ${childX} ${childY}`);
+                line.setAttribute('stroke', child.color || '#cbd5e1');
+                line.setAttribute('stroke-width', '2');
+                svg.appendChild(line);
             });
-        });
+        }
+
+        // Initial Render
+        renderRadialChart(teamData.name);
+        window.addEventListener('resize', () => renderRadialChart(document.querySelector('.center').dataset.name));
     }
 
-    // --- OTHER PAGE RENDERERS (Unchanged) ---
+
+    // --- EXISTING PAGE LOGIC (UNMODIFIED) ---
+
     function renderHomeAccordion() { /* ... function content ... */ }
     function renderResourcesContent() { /* ... function content ... */ }
     function initializeRnrCarousel() { /* ... function content ... */ }
 
-    // --- PAGE NAVIGATION LOGIC ---
     const navLinks = document.querySelectorAll('.nav-link');
     const pageContents = document.querySelectorAll('.page-content');
     const mobileMenu = document.getElementById('mobile-menu');
@@ -135,24 +142,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function switchPage(pageId) {
         window.scrollTo(0, 0);
-        
         pageContents.forEach(page => {
             page.classList.toggle('active', page.id === `page-${pageId}`);
-            if(page.id === `page-${pageId}`) {
+            if (page.id === `page-${pageId}`) {
                 page.classList.add('fade-in');
                 if (pageId === 'home' && !pageInitialized.home) {
-                    renderOrgChart();
+                    renderOrgChart(); // This now renders the new RADIAL chart
                     renderHomeAccordion();
                     pageInitialized.home = true;
                 }
-                // ... other page initializations
+                if (pageId === 'resources' && !pageInitialized.resources) {
+                    renderResourcesContent();
+                    pageInitialized.resources = true;
+                }
+                if (pageId === 'roll-of-honour' && !pageInitialized.rnr) {
+                    initializeRnrCarousel();
+                    pageInitialized.rnr = true;
+                }
             }
         });
-
-        navLinks.forEach(link => {
-            link.classList.toggle('active', link.dataset.page === pageId);
-        });
-
+        navLinks.forEach(link => link.classList.toggle('active', link.dataset.page === pageId));
         mobileMenu.classList.add('hidden');
     }
 
@@ -164,10 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     const menuBtn = document.getElementById('menu-btn');
-    menuBtn.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-    });
+    menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
 
-    // Initial page load
     switchPage('home');
 });
