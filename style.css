@@ -48,126 +48,153 @@ body {
 }
 
 
-/* --- CORRECTED RADIAL ORG CHART STYLES --- */
-.org-chart-container {
-    /* This is the outer box for sizing and centering */
-    width: 100%;
+/* --- NEW TIMELINE ORG CHART STYLES --- */
+.timeline-org-chart {
+    position: relative;
     max-width: 900px;
-    height: 600px;
     margin: 2rem auto;
-    background: #ffffff;
-    border-radius: 1rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.07);
-    padding: 1rem; /* Add some padding */
+    padding: 2rem 0;
 }
 
-#org-nodes-wrapper {
-    position: relative; /* THIS IS THE CRITICAL FIX */
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
+.timeline-lead {
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 10;
 }
 
-#org-chart-svg {
+.timeline-lead .node-card {
+    display: inline-block;
+    padding: 1rem;
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border: 2px solid;
+}
+
+.timeline-body {
+    position: relative;
+}
+
+/* The central vertical line */
+.timeline-body::before {
+    content: '';
     position: absolute;
     top: 0;
-    left: 0;
-    width: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 3px;
     height: 100%;
-    pointer-events: none;
-    z-index: 1;
+    background-color: #cbd5e1;
 }
 
-#org-chart-svg path {
-    transition: all 0.5s ease-in-out;
+.timeline-item {
+    position: relative;
+    width: 50%;
+    padding: 0 2rem;
+    margin-bottom: 2rem;
 }
 
-.radial-org-node {
+/* Position items on either side */
+.timeline-item.right {
+    left: 50%;
+}
+.timeline-item.left {
+    text-align: right;
+}
+
+/* The circle on the timeline */
+.timeline-item::before {
+    content: '';
     position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: white;
-    border-radius: 8px;
-    padding: 1.5rem 1rem 1rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    border: 2px solid;
-    width: 180px;
-    z-index: 10;
-    transition: all 0.5s ease-in-out;
-}
-
-.radial-org-node.center {
-    transform: translate(-50%, -50%) scale(1.1);
-    z-index: 20;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-.radial-org-node.orbit {
-    transform: translate(-50%, -50%) scale(1);
-}
-.radial-org-node.orbit:hover {
-    transform: translate(-50%, -50%) scale(1.05);
-    z-index: 30;
-}
-
-.radial-org-node img {
-    width: 50px;
-    height: 50px;
+    top: 20px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    border: 3px solid white;
-    margin-top: -42px;
-    margin-bottom: 8px;
     background-color: white;
+    border: 3px solid; /* Color set by JS */
+    z-index: 5;
+}
+.timeline-item.left::before {
+    right: -8px;
+}
+.timeline-item.right::before {
+    left: -8px;
+}
+
+/* The horizontal line connecting node to spine */
+.timeline-item::after {
+    content: '';
+    position: absolute;
+    top: 27px;
+    width: 2rem;
+    height: 3px;
+    background-color: #cbd5e1;
+}
+.timeline-item.left::after {
+    right: 0;
+}
+.timeline-item.right::after {
+    left: 0;
+}
+
+.node-card {
+    background: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    display: inline-block;
+    min-width: 250px;
+    text-align: center;
+    border: 2px solid; /* Color set by JS */
+    cursor: pointer;
+}
+
+.node-card img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin: 0 auto 0.75rem;
     object-fit: cover;
 }
 
-.radial-org-node .name {
+.node-card .name {
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 1.1rem;
     color: #111827;
 }
 
-.radial-org-node .title {
-    font-size: 0.8rem;
+.node-card .title {
+    font-size: 0.875rem;
     font-weight: 500;
 }
 
-#org-back-button {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background-color: rgba(255, 255, 255, 0.8);
-    border: 1px solid #e5e7eb;
-    backdrop-filter: blur(4px);
-    border-radius: 9999px;
-    padding: 8px 16px;
+.reports-list {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-in-out, margin-top 0.5s ease-in-out;
+    list-style: none;
+    padding: 0;
+    margin-top: 0;
+    text-align: left;
+}
+
+.timeline-item.expanded .reports-list {
+    max-height: 1000px; /* Large enough for all reports */
+    margin-top: 1rem;
+}
+
+.reports-list li {
+    padding: 0.5rem 1rem;
+    margin: 0.25rem 0;
+    background-color: #f8fafc;
+    border-radius: 0.25rem;
+    border-left: 3px solid; /* Color set by JS */
     font-size: 0.9rem;
-    font-weight: 600;
-    color: #374151;
-    cursor: pointer;
-    z-index: 50;
-    transition: all 0.2s;
-    opacity: 0;
-    pointer-events: none;
-}
-#org-back-button.visible {
-    opacity: 1;
-    pointer-events: auto;
-}
-#org-back-button:hover {
-    background-color: white;
-    border-color: #d1d5db;
 }
 
 
 /* Accordion Styles (Unchanged) */
 .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
 .accordion-button svg { transition: transform 0.3s ease-out; }
-
-/* Timeline Styles (Unchanged) */
-.timeline-item { position: relative; padding-bottom: 2.5rem; padding-left: 2.5rem; }
-.timeline-item:last-child { padding-bottom: 0; }
-.timeline-item:before { content: ''; position: absolute; left: 0.5rem; top: 0.25rem; bottom: 0; width: 2px; background-color: #e5e7eb; }
-.timeline-icon { position: absolute; left: 0; top: 0.25rem; display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 9999px; background-color: #4f46e5; color: white; }
 
