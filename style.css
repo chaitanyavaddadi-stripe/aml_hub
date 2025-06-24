@@ -47,129 +47,112 @@ body {
     display: block;
 }
 
-/* --- NEW INTERACTIVE ORG CHART STYLES --- */
+
+/* --- NEW RADIAL ORG CHART STYLES --- */
 .org-chart-container {
     position: relative;
-    padding: 2rem 1rem;
-    overflow-x: auto;
-    min-height: 400px; /* Ensure space for the chart */
+    width: 100%;
+    max-width: 900px;
+    height: 600px; /* Fixed height for a stable layout */
+    margin: 2rem auto;
+    overflow: hidden;
+    background: #ffffff;
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.07);
 }
 
-/* The SVG canvas for drawing lines */
 #org-chart-svg {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none; /* Allows clicking through the SVG to the nodes */
-    overflow: visible;
+    pointer-events: none;
+    z-index: 1;
 }
 
-/* Tree structure styling */
-.org-tree {
-    display: inline-flex; /* Use inline-flex to allow the container to shrink-to-fit its content */
-    flex-direction: column;
-    align-items: center;
-}
-.org-tree ul {
-    padding-top: 40px; /* Space for lines */
-    position: relative;
-    display: flex;
-    justify-content: center;
+#org-chart-svg path {
+    transition: all 0.5s ease-in-out;
 }
 
-.org-tree li {
-    text-align: center;
-    list-style-type: none;
-    position: relative;
-    padding: 20px 15px 0 15px; /* Spacing between nodes */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* Hide children by default */
-.org-tree li > ul {
-    display: none;
-    padding-top: 60px; /* More space for lines to the next level */
-}
-
-/* Show children when parent is expanded */
-.org-tree li.expanded > ul {
-    display: flex;
-}
-
-/* Node styling to match inspiration */
-.org-node {
+.radial-org-node {
+    position: absolute;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     background-color: white;
-    border: 2px solid; /* Color will be set by JS */
     border-radius: 8px;
-    padding: 1.75rem 1rem 1rem;
-    text-align: center;
-    min-width: 200px;
-    display: inline-block;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    position: relative;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-.org-node:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-}
-
-.org-node.has-children:after {
-    content: '+';
-    position: absolute;
-    bottom: -28px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 24px;
-    height: 24px;
-    line-height: 22px;
-    border-radius: 50%;
-    background-color: #fff;
-    border: 1px solid #9ca3af;
-    color: #4b5563;
-    font-size: 18px;
-    font-weight: bold;
+    padding: 1.5rem 1rem 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border: 2px solid;
+    width: 180px;
     z-index: 10;
-    transition: all 0.2s;
-}
-.org-node.has-children:hover:after {
-    background-color: #f3f4f6;
+    transition: all 0.5s ease-in-out;
+    /* Will be positioned by JS */
 }
 
-.org-node.has-children.expanded:after {
-    content: '−';
+.radial-org-node.center {
+    transform: translate(-50%, -50%) scale(1.1);
+    z-index: 20;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
-.org-node img {
-    width: 60px;
-    height: 60px;
+.radial-org-node.orbit {
+    transform: translate(-50%, -50%) scale(1);
+}
+.radial-org-node.orbit:hover {
+    transform: translate(-50%, -50%) scale(1.05);
+    z-index: 30;
+}
+
+.radial-org-node img {
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    border: 4px solid white;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    border: 3px solid white;
+    margin-top: -42px; /* Pulls image up */
+    margin-bottom: 8px;
     background-color: white;
     object-fit: cover;
-    z-index: 5;
 }
 
-.org-node .name {
+.radial-org-node .name {
     font-weight: 700;
+    font-size: 0.95rem;
     color: #111827;
-    font-size: 1.05rem;
 }
 
-.org-node .title {
-    font-size: 0.875rem;
+.radial-org-node .title {
+    font-size: 0.8rem;
     font-weight: 500;
-    margin-top: 0.25rem;
+}
+
+#org-back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid #e5e7eb;
+    backdrop-filter: blur(4px);
+    border-radius: 9999px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    z-index: 50;
+    transition: all 0.2s;
+    opacity: 0;
+    pointer-events: none;
+}
+#org-back-button.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+#org-back-button:hover {
+    background-color: white;
+    border-color: #d1d5db;
 }
 
 
