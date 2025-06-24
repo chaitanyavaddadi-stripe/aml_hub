@@ -1,4 +1,4 @@
-
+/* General Body and Base Styles */
 body {
     font-family: 'Inter', sans-serif;
     background-color: #f0f2f5;
@@ -47,11 +47,12 @@ body {
     display: block;
 }
 
-/* --- NEW ORG CHART STYLES --- */
+/* --- NEW INTERACTIVE ORG CHART STYLES --- */
 .org-chart-container {
     position: relative;
-    padding-bottom: 2rem;
-    overflow-x: auto; /* Allow horizontal scrolling for large charts */
+    padding: 2rem 1rem;
+    overflow-x: auto;
+    min-height: 400px; /* Ensure space for the chart */
 }
 
 /* The SVG canvas for drawing lines */
@@ -66,20 +67,23 @@ body {
 }
 
 /* Tree structure styling */
+.org-tree {
+    display: inline-flex; /* Use inline-flex to allow the container to shrink-to-fit its content */
+    flex-direction: column;
+    align-items: center;
+}
 .org-tree ul {
-    padding-top: 20px;
+    padding-top: 40px; /* Space for lines */
     position: relative;
-    transition: all 0.5s;
     display: flex;
     justify-content: center;
 }
 
 .org-tree li {
-    float: left;
     text-align: center;
     list-style-type: none;
     position: relative;
-    padding: 20px 5px 0 5px;
+    padding: 20px 15px 0 15px; /* Spacing between nodes */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -88,6 +92,7 @@ body {
 /* Hide children by default */
 .org-tree li > ul {
     display: none;
+    padding-top: 60px; /* More space for lines to the next level */
 }
 
 /* Show children when parent is expanded */
@@ -99,11 +104,11 @@ body {
 .org-node {
     cursor: pointer;
     background-color: white;
-    border: 2px solid #ccc;
+    border: 2px solid; /* Color will be set by JS */
     border-radius: 8px;
-    padding: 1.5rem 1rem 1rem;
+    padding: 1.75rem 1rem 1rem;
     text-align: center;
-    min-width: 180px;
+    min-width: 200px;
     display: inline-block;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     position: relative;
@@ -117,20 +122,25 @@ body {
 .org-node.has-children:after {
     content: '+';
     position: absolute;
-    bottom: -25px;
+    bottom: -28px;
     left: 50%;
     transform: translateX(-50%);
-    width: 20px;
-    height: 20px;
-    line-height: 18px;
+    width: 24px;
+    height: 24px;
+    line-height: 22px;
     border-radius: 50%;
     background-color: #fff;
-    border: 1px solid #ccc;
-    color: #666;
-    font-size: 16px;
+    border: 1px solid #9ca3af;
+    color: #4b5563;
+    font-size: 18px;
     font-weight: bold;
     z-index: 10;
+    transition: all 0.2s;
 }
+.org-node.has-children:hover:after {
+    background-color: #f3f4f6;
+}
+
 .org-node.has-children.expanded:after {
     content: '−';
 }
@@ -144,7 +154,7 @@ body {
     position: absolute;
     top: 0;
     left: 50%;
-    transform: translate(-50%, -50%); /* Center the image over the top edge */
+    transform: translate(-50%, -50%);
     background-color: white;
     object-fit: cover;
     z-index: 5;
@@ -153,54 +163,22 @@ body {
 .org-node .name {
     font-weight: 700;
     color: #111827;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
 }
 
 .org-node .title {
-    color: #4f46e5;
     font-size: 0.875rem;
     font-weight: 500;
     margin-top: 0.25rem;
 }
 
+
 /* Accordion Styles (Unchanged) */
-.accordion-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
-}
-.accordion-button svg {
-    transition: transform 0.3s ease-out;
-}
+.accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+.accordion-button svg { transition: transform 0.3s ease-out; }
 
 /* Timeline Styles (Unchanged) */
-.timeline-item {
-    position: relative;
-    padding-bottom: 2.5rem;
-    padding-left: 2.5rem;
-}
-.timeline-item:last-child {
-    padding-bottom: 0;
-}
-.timeline-item:before {
-    content: '';
-    position: absolute;
-    left: 0.5rem;
-    top: 0.25rem;
-    bottom: 0;
-    width: 2px;
-    background-color: #e5e7eb;
-}
-.timeline-icon {
-    position: absolute;
-    left: 0;
-    top: 0.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 9999px;
-    background-color: #4f46e5;
-    color: white;
-}
+.timeline-item { position: relative; padding-bottom: 2.5rem; padding-left: 2.5rem; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-item:before { content: ''; position: absolute; left: 0.5rem; top: 0.25rem; bottom: 0; width: 2px; background-color: #e5e7eb; }
+.timeline-icon { position: absolute; left: 0; top: 0.25rem; display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 9999px; background-color: #4f46e5; color: white; }
