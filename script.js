@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const nameToFilename = (name) => name.toLowerCase().replace(/ /g, '-').replace(/\./g, '') + '.jpg';
     const nameToInitials = (name) => name.split(' ').map(n => n[0]).join('').substring(0, 2);
 
-    // --- NEW RADIAL ORG CHART ---
+    // --- RADIAL ORG CHART ---
     function renderOrgChart() {
         const teamData = {
             name: 'Megha Chhaparia', title: 'AML LOB Lead', image: 'meghachhaparia.jpg', color: '#8b5cf6',
@@ -27,49 +27,49 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!container) return;
 
         container.innerHTML = `
-            <div id="org-nodes-wrapper"></div>
-            <svg id="org-chart-svg"></svg>
-            <button id="org-back-button"><i class="fas fa-arrow-left mr-2"></i> Go Back</button>
+            <div id="org-nodes-wrapper">
+                <svg id="org-chart-svg"></svg>
+                <div id="org-nodes-elements"></div>
+                <button id="org-back-button"><i class="fas fa-arrow-left mr-2"></i> Go Back</button>
+            </div>
         `;
-        const nodesWrapper = container.querySelector('#org-nodes-wrapper');
+        const wrapper = container.querySelector('#org-nodes-wrapper');
+        const elementsContainer = container.querySelector('#org-nodes-elements');
         const svg = container.querySelector('#org-chart-svg');
         const backButton = container.querySelector('#org-back-button');
 
+        let currentFocus = teamData.name;
+
         function renderRadialChart(focusNodeName) {
+            currentFocus = focusNodeName;
             const focusNode = hierarchy[focusNodeName];
-            nodesWrapper.innerHTML = ''; // Clear existing nodes
+            elementsContainer.innerHTML = ''; 
 
-            const centerX = container.offsetWidth / 2;
-            const centerY = container.offsetHeight / 2;
-
-            // Render Center Node
+            const centerX = wrapper.offsetWidth / 2;
+            const centerY = wrapper.offsetHeight / 2;
+            
             const centerNodeEl = createNode(focusNode, 'center');
             centerNodeEl.style.left = `${centerX}px`;
             centerNodeEl.style.top = `${centerY}px`;
-            nodesWrapper.appendChild(centerNodeEl);
+            elementsContainer.appendChild(centerNodeEl);
 
-            // Render Orbiting Children Nodes
             const children = focusNode.children;
             const angleStep = children.length > 0 ? 360 / children.length : 0;
             const radius = Math.min(centerX, centerY) * 0.7;
 
             children.forEach((child, index) => {
-                const angle = angleStep * index - 90; // -90 to start from the top
+                const angle = angleStep * index - 90;
                 const angleRad = angle * (Math.PI / 180);
-
                 const childX = centerX + radius * Math.cos(angleRad);
                 const childY = centerY + radius * Math.sin(angleRad);
-
                 const childNodeEl = createNode(child, 'orbit');
                 childNodeEl.style.left = `${childX}px`;
                 childNodeEl.style.top = `${childY}px`;
-                nodesWrapper.appendChild(childNodeEl);
+                elementsContainer.appendChild(childNodeEl);
             });
             
-            // Draw lines and handle back button after a short delay for CSS transitions
             setTimeout(() => {
                 drawLines(focusNode, centerX, centerY, radius);
-                
                 if (focusNode.parent) {
                     backButton.classList.add('visible');
                     backButton.onclick = () => renderRadialChart(focusNode.parent);
@@ -83,13 +83,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const nodeEl = document.createElement('div');
             nodeEl.className = `radial-org-node ${type}`;
             nodeEl.dataset.name = person.name;
-            
             const color = person.color || '#6b7280';
-            const placeholderColor = color.substring(1);
             nodeEl.style.borderColor = color;
 
             nodeEl.innerHTML = `
-                <img src="images/${person.image || nameToFilename(person.name)}" onerror="this.onerror=null;this.src='https://placehold.co/100x100/${placeholderColor}/ffffff?text=${nameToInitials(person.name)}';">
+                <img src="images/${person.image || nameToFilename(person.name)}" onerror="this.onerror=null;this.src='https://placehold.co/100x100/${color.substring(1)}/ffffff?text=${nameToInitials(person.name)}';">
                 <div class="name">${person.name}</div>
                 <div class="title" style="color: ${color};">${person.title}</div>
             `;
@@ -100,7 +98,6 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 nodeEl.style.cursor = 'default';
             }
-
             return nodeEl;
         }
 
@@ -108,13 +105,11 @@ document.addEventListener('DOMContentLoaded', function() {
             svg.innerHTML = '';
             const children = focusNode.children;
             const angleStep = children.length > 0 ? 360 / children.length : 0;
-            
             children.forEach((child, index) => {
                 const angle = angleStep * index - 90;
                 const angleRad = angle * (Math.PI / 180);
                 const childX = centerX + radius * Math.cos(angleRad);
                 const childY = centerY + radius * Math.sin(angleRad);
-
                 const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 line.setAttribute('d', `M ${centerX} ${centerY} L ${childX} ${childY}`);
                 line.setAttribute('stroke', child.color || '#cbd5e1');
@@ -123,9 +118,8 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // Initial Render
-        renderRadialChart(teamData.name);
-        window.addEventListener('resize', () => renderRadialChart(document.querySelector('.center').dataset.name));
+        renderRadialChart(currentFocus);
+        window.addEventListener('resize', () => renderRadialChart(currentFocus));
     }
 
 
@@ -147,18 +141,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (page.id === `page-${pageId}`) {
                 page.classList.add('fade-in');
                 if (pageId === 'home' && !pageInitialized.home) {
-                    renderOrgChart(); // This now renders the new RADIAL chart
+                    renderOrgChart();
                     renderHomeAccordion();
                     pageInitialized.home = true;
                 }
-                if (pageId === 'resources' && !pageInitialized.resources) {
-                    renderResourcesContent();
-                    pageInitialized.resources = true;
-                }
-                if (pageId === 'roll-of-honour' && !pageInitialized.rnr) {
-                    initializeRnrCarousel();
-                    pageInitialized.rnr = true;
-                }
+                // ... other page initializations
             }
         });
         navLinks.forEach(link => link.classList.toggle('active', link.dataset.page === pageId));
