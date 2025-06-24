@@ -48,7 +48,7 @@ body {
 }
 
 
-/* --- NEW TIMELINE ORG CHART STYLES --- */
+/* --- TIMELINE ORG CHART STYLES --- */
 .timeline-org-chart {
     position: relative;
     max-width: 900px;
@@ -88,7 +88,7 @@ body {
     background-color: #cbd5e1;
 }
 
-.timeline-item {
+.org-timeline-item { /* Renamed to avoid conflict */
     position: relative;
     width: 50%;
     padding: 0 2rem;
@@ -96,15 +96,15 @@ body {
 }
 
 /* Position items on either side */
-.timeline-item.right {
+.org-timeline-item.right {
     left: 50%;
 }
-.timeline-item.left {
+.org-timeline-item.left {
     text-align: right;
 }
 
 /* The circle on the timeline */
-.timeline-item::before {
+.org-timeline-item::before {
     content: '';
     position: absolute;
     top: 20px;
@@ -112,18 +112,14 @@ body {
     height: 16px;
     border-radius: 50%;
     background-color: white;
-    border: 3px solid; /* Color set by JS */
+    border: 3px solid;
     z-index: 5;
 }
-.timeline-item.left::before {
-    right: -8px;
-}
-.timeline-item.right::before {
-    left: -8px;
-}
+.org-timeline-item.left::before { right: -8px; }
+.org-timeline-item.right::before { left: -8px; }
 
 /* The horizontal line connecting node to spine */
-.timeline-item::after {
+.org-timeline-item::after {
     content: '';
     position: absolute;
     top: 27px;
@@ -131,12 +127,8 @@ body {
     height: 3px;
     background-color: #cbd5e1;
 }
-.timeline-item.left::after {
-    right: 0;
-}
-.timeline-item.right::after {
-    left: 0;
-}
+.org-timeline-item.left::after { right: 0; }
+.org-timeline-item.right::after { left: 0; }
 
 .node-card {
     background: white;
@@ -146,7 +138,7 @@ body {
     display: inline-block;
     min-width: 250px;
     text-align: center;
-    border: 2px solid; /* Color set by JS */
+    border: 2px solid;
     cursor: pointer;
 }
 
@@ -179,8 +171,8 @@ body {
     text-align: left;
 }
 
-.timeline-item.expanded .reports-list {
-    max-height: 1000px; /* Large enough for all reports */
+.org-timeline-item.expanded .reports-list { /* Renamed to avoid conflict */
+    max-height: 1000px;
     margin-top: 1rem;
 }
 
@@ -189,12 +181,44 @@ body {
     margin: 0.25rem 0;
     background-color: #f8fafc;
     border-radius: 0.25rem;
-    border-left: 3px solid; /* Color set by JS */
+    border-left: 3px solid;
     font-size: 0.9rem;
+}
+
+
+/* --- ENGAGEMENT PAGE TIMELINE STYLES (Original and Correct) --- */
+#page-engagement .timeline-item {
+    position: relative;
+    padding-bottom: 2.5rem;
+    padding-left: 2.5rem;
+}
+#page-engagement .timeline-item:last-child {
+    padding-bottom: 0;
+}
+#page-engagement .timeline-item:before {
+    content: '';
+    position: absolute;
+    left: 0.5rem;
+    top: 0.25rem;
+    bottom: 0;
+    width: 2px;
+    background-color: #e5e7eb;
+}
+#page-engagement .timeline-icon {
+    position: absolute;
+    left: 0;
+    top: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    background-color: #4f46e5;
+    color: white;
 }
 
 
 /* Accordion Styles (Unchanged) */
 .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
 .accordion-button svg { transition: transform 0.3s ease-out; }
-
