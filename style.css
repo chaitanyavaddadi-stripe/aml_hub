@@ -76,7 +76,6 @@ body {
     position: relative;
 }
 
-/* The central vertical line */
 .timeline-body::before {
     content: '';
     position: absolute;
@@ -88,22 +87,16 @@ body {
     background-color: #cbd5e1;
 }
 
-.org-timeline-item { /* Renamed to avoid conflict */
+.org-timeline-item {
     position: relative;
     width: 50%;
     padding: 0 2rem;
     margin-bottom: 2rem;
 }
 
-/* Position items on either side */
-.org-timeline-item.right {
-    left: 50%;
-}
-.org-timeline-item.left {
-    text-align: right;
-}
+.org-timeline-item.right { left: 50%; }
+.org-timeline-item.left { text-align: right; }
 
-/* The circle on the timeline */
 .org-timeline-item::before {
     content: '';
     position: absolute;
@@ -114,11 +107,11 @@ body {
     background-color: white;
     border: 3px solid;
     z-index: 5;
+    border-color: var(--item-color, #cbd5e1);
 }
 .org-timeline-item.left::before { right: -8px; }
 .org-timeline-item.right::before { left: -8px; }
 
-/* The horizontal line connecting node to spine */
 .org-timeline-item::after {
     content: '';
     position: absolute;
@@ -171,54 +164,49 @@ body {
     text-align: left;
 }
 
-.org-timeline-item.expanded .reports-list { /* Renamed to avoid conflict */
+.org-timeline-item.expanded .reports-list {
     max-height: 1000px;
     margin-top: 1rem;
 }
 
-.reports-list li {
-    padding: 0.5rem 1rem;
+/* NEW STYLES FOR REPORT ITEMS */
+.report-item-link {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
     margin: 0.25rem 0;
     background-color: #f8fafc;
-    border-radius: 0.25rem;
-    border-left: 3px solid;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    color: #374151;
+    transition: background-color 0.2s;
+}
+.report-item-link:hover {
+    background-color: #f1f5f9;
+}
+.report-item-link img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.report-item-link span {
     font-size: 0.9rem;
 }
 
 
-/* --- ENGAGEMENT PAGE TIMELINE STYLES (Original and Correct) --- */
+/* ENGAGEMENT PAGE TIMELINE STYLES */
 #page-engagement .timeline-item {
     position: relative;
     padding-bottom: 2.5rem;
     padding-left: 2.5rem;
 }
-#page-engagement .timeline-item:last-child {
-    padding-bottom: 0;
-}
-#page-engagement .timeline-item:before {
-    content: '';
-    position: absolute;
-    left: 0.5rem;
-    top: 0.25rem;
-    bottom: 0;
-    width: 2px;
-    background-color: #e5e7eb;
-}
-#page-engagement .timeline-icon {
-    position: absolute;
-    left: 0;
-    top: 0.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 9999px;
-    background-color: #4f46e5;
-    color: white;
-}
+#page-engagement .timeline-item:last-child { padding-bottom: 0; }
+#page-engagement .timeline-item:before { content: ''; position: absolute; left: 0.5rem; top: 0.25rem; bottom: 0; width: 2px; background-color: #e5e7eb; }
+#page-engagement .timeline-icon { position: absolute; left: 0; top: 0.25rem; display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 9999px; background-color: #4f46e5; color: white; }
 
-
-/* Accordion Styles (Unchanged) */
+/* ACCORDION STYLES */
 .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
 .accordion-button svg { transition: transform 0.3s ease-out; }
